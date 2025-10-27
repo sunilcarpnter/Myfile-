@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>फाइल अपलोड वेबसाइट</title>
+    <style>
+        :root {
+            --bg-color: rgba(255, 255, 255, 0.9);
+            --text-color: #000000;
+            --border-color: #cccccc;
+            --button-bg: #007bff;
+            --button-text: #ffffff;
+            --button-hover: #0056b3;
+            --list-bg: rgba(249, 249, 249, 0.9);
+        }
+        
+        [data-theme="dark"] {
+            --bg-color: rgba(18, 18, 18, 0.9);
+            --text-color: #ffffff;
+            --border-color: #333333;
+            --button-bg: #bb86fc;
+            --button-text: #000000;
+            --button-hover: #9d4edd;
+            --list-bg: rgba(30, 30, 30, 0.9);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-color) url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+        
+        h1, h2 {
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        p {
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            z-index: 10;
+        }
+        
+        .theme-toggle:hover {
+            background-color: var(--button-hover);
+        }
+        
+        .upload-form {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            padding: 20px;
+            background: var(--list-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .upload-form input[type="file"] {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            width: 100%;
+        }
+        
+        .upload-form button {
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .upload-form button:hover {
+            background-color: var(--button-hover);
+        }
+        
+        .file-list {
+            list-style: none;
+            padding: 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--list-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .file-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .file-info {
+            flex-grow: 1;
+            font-weight: bold;
+        }
+        
+        .file-actions button {
+            margin-left: 10px;
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .file-actions button:hover {
+            background-color: var(--button-hover);
+        }
+        
+        .file-actions button.delete {
+            background: #dc3545;
+        }
+        
+        .file-actions button.delete:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <button class="theme-toggle" id="themeToggle">लाइट मोड</button>
+    
+    <h1>फाइल अपलोड वेबसाइट</h1>
+    <p>यहाँ आप APK, PDF, इमेज, वीडियो आदि फाइलें अपलोड कर सकते हैं। अपलोड की गई फाइलों को देखने, डाउनलोड करने और डिलीट करने के विकल्प हैं। नोट: अपलोड साइज़ 500MB तक सपोर्टेड है (क्लाइंट-साइड चेक)।</p>
+    
+    <!-- अपलोड फॉर्म -->
+    <div class="upload-form">
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="fileInput" multiple accept=".apk,.pdf,.jpg,.jpeg,.png,.gif,.mp4,.avi,.mov,.mkv">
+            <button type="submit">अपलोड करें</button>
+        </form>
+    </div>
+    
+    <!-- अपलोड की गई फाइलों की लिस्ट -->
+    <h2>अपलोड की गई फाइलें</h2>
+    <ul id="fileList" class="file-list">
+        <!-- यहाँ फाइलें डायनामिकली जोड़ी जाएँगी -->
+    </ul>
+    
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // थीम टॉगल फंक्शन
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = 'डार्क मोड';
+            } else {
+                body.setAttribute('data-theme', 'light');
+                themeToggle.textContent = 'लाइट मोड';
+            }
+        });
+        
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        
+        // फाइल अपलोड हैंडलर (क्लाइंट-साइड सिमुलेशन)
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const files = fileInput.files;
+            const maxSize = 500 * 1024 * 1024; // 500MB in bytes
+            
+            for (let file of files) {
+                if (file.size > maxSize) {
+                    alert(`फाइल ${file.name} बहुत बड़ी है! अधिकतम 500MB तक अपलोड कर सकते हैं।`);
+                    continue;
+                }
+                addFileToList(file);
+            }
+            fileInput.value = ''; // रीसेट इनपुट
+        });
+        
+        // फाइल को लिस्ट में जोड़ना
+        function addFileToList(file) {
+            const li = document.createElement('li');
+            li.className = 'file-item';
+            
+            // फाइल नाम और टाइप
+            const fileInfo = document.createElement('span');
+            fileInfo.className = 'file-info';
+            fileInfo.textContent = `${file.name} (${file.type || 'अज्ञात टाइप'}) - ${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+            
+            // एक्शन्स कंटेनर
+            const actions = document.createElement('div');
+            actions.className = 'file-actions';
+            
+            // व्यू बटन (सिम्पल अलर्ट)
+            const viewBtn = document.createElement('button');
+            viewBtn.textContent = 'व्यू';
+            viewBtn.onclick = () => alert(`व्यू: ${file.name} (यहाँ रियल व्यू लॉजिक जोड़ें, जैसे इमेज/वीडियो डिस्प्ले)`);
+            
+            // डाउनलोड बटन (सिम्पल डाउनलोड)
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'डाउनलोड';
+            downloadBtn.onclick = () => {
+                const url = URL.createObjectURL(file);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.name;
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+            
+            // डिलीट बटन
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete';
+            deleteBtn.textContent = 'डिलीट';
+            deleteBtn.onclick = () => li.remove();
+            
+            actions.appendChild(viewBtn);
+            actions.appendChild(downloadBtn);
+            actions.appendChild(deleteBtn);
+            
+            li.appendChild(fileInfo);
+            li.appendChild(actions);
+            fileList.appendChild(li);
+        }
+    </script>
+</body>
+</html>
